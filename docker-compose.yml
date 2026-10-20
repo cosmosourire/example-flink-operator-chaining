@@ -1,0 +1,27 @@
+# docker-compose.yml
+name: flink
+
+services:
+  jobmanager:
+    image: flink:2.3.0-java17
+    command: jobmanager
+    ports:
+      - "8081:8081"             # Web UI / REST API
+    volumes:
+      - ./target:/opt/flink/jobs  # mvn package 로 만든 jar 를 컨테이너에서 사용
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        parallelism.default: 2
+
+  taskmanager:
+    image: flink:2.3.0-java17
+    command: taskmanager
+    depends_on:
+      - jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 2
